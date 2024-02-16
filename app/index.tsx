@@ -1,5 +1,8 @@
 // @ts-nocheck
+import { useEffect, useState } from "react";
+import { FlashList } from "@shopify/flash-list";
 import { Github, Twitter } from "@tamagui/lucide-icons";
+import { log } from "console";
 import { Link, useRouter } from "expo-router";
 import {
   Button,
@@ -13,8 +16,50 @@ import {
 
 import { MySafeAreaView } from "../components/MySafeAreaView";
 import { MyStack } from "../components/MyStack";
+import Track from "../components/track";
+import { getJSONData, storeJSONData } from "../utils/asyncStorage";
+
+const today = new Date();
+const year = today.getFullYear();
+const mon = today.getMonth() + 1;
+const day = today.getDate();
+const date = day + "-" + mon + "-" + year;
 
 export default function Home() {
+  const [data, setData] = useState([
+    {
+      title: "First Item!!!",
+      value: 1
+    },
+    {
+      title: "Second Item",
+      value: 1
+    }
+  ]);
+
+  function onClick(index) {
+    return (value: number) => {
+      const deepCopyData = JSON.parse(JSON.stringify(data));
+      deepCopyData[index].value = value;
+      console.log(data);
+      console.log(deepCopyData);
+      setData(deepCopyData);
+    };
+  }
+
+  useEffect(() => {
+    storeJSONData(
+      date,
+      data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
+    ).then(() => {
+      getJSONData(date).then((result) => {
+        setData(
+          Object.entries(result).map(([title, value]) => ({ title, value }))
+        );
+      });
+    });
+  }, []);
+
   const router = useRouter();
 
   return (
@@ -85,6 +130,17 @@ export default function Home() {
             </YGroup.Item>
           </YGroup>
         </YStack>
+        <FlashList
+          data={data}
+          renderItem={({ item, index }) => (
+            <Track
+              label={item.title}
+              value={item.value}
+              onClick={onClick(index)}
+            />
+          )}
+          estimatedItemSize={100}
+        />
       </MyStack>
     </MySafeAreaView>
   );
