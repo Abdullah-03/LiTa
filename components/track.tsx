@@ -16,6 +16,7 @@ function Track({ label, value, onClick, deleteTrack }: trackProps) {
       justifyContent="space-between"
       marginBottom={5}
       onLongPress={() => setDeleteView(true)}
+      onPress={() => setDeleteView(false)}
     >
       <Paragraph
         overflow="scroll"
@@ -32,8 +33,11 @@ function Track({ label, value, onClick, deleteTrack }: trackProps) {
         width={60}
       />
       {isDeleteView ? (
-        <Button onPressOut={deleteTrack}>
-          <Minus size={10} />{" "}
+        <Button
+          onPressOut={deleteTrack}
+          textAlign="center"
+        >
+          <Minus size={15} />
         </Button>
       ) : null}
     </XStack>

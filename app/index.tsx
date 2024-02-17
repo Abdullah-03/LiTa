@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useEffect, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { Link, useRouter } from "expo-router";
@@ -85,14 +86,14 @@ export default function Home() {
         <YStack maxWidth={600}>
           <H1 textAlign="center">Welcome to LiTa</H1>
           <Paragraph textAlign="center">
-            Here&apos;s a basic starter to show navigating from one screen to
-            another.
+            A functionally minimal, privacy focused, and completly offline life
+            tracking app.
           </Paragraph>
         </YStack>
 
         <YStack space="$2.5">
           <Button onPress={() => router.push("/graphs")}>
-            Go to graphs page
+            Generate Graphs
           </Button>
           <NewTrackModal addNewTrack={addNewTrack} />
         </YStack>
