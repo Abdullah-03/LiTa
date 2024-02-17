@@ -1,14 +1,19 @@
 //@ts-nocheck
 import { useEffect, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
+import { Check, Frown, Laugh } from "@tamagui/lucide-icons";
 import { Link, useRouter } from "expo-router";
-import { Button, H1, Paragraph, YStack } from "tamagui";
+import { Button, H1, Paragraph, Text, View, XStack, YStack } from "tamagui";
 
 import { MySafeAreaView } from "../components/MySafeAreaView";
 import { MyStack } from "../components/MyStack";
 import NewTrackModal from "../components/NewTrackModal";
 import Track from "../components/track";
-import { getJSONData, storeJSONData } from "../utils/asyncStorage";
+import {
+  getJSONData,
+  storeJSONData,
+  storeStringData
+} from "../utils/asyncStorage";
 
 interface resultInterface {
   title: string;
@@ -23,6 +28,8 @@ const day = today.getDate();
 const date = day + "-" + mon + "-" + year;
 
 export default function Home() {
+  const [mood, setMood] = useState(-1);
+
   console.log("rerender");
 
   function addNewTrack(name: string) {
@@ -68,6 +75,11 @@ export default function Home() {
     };
   }
 
+  function moodClick(m: number): void {
+    mood === m ? setMood(-1) : setMood(m);
+    storeStringData(date + " mood", String(m));
+  }
+
   useEffect(() => {
     getJSONData(date).then((result: resultInterface) => {
       console.log("useEffect ran", result);
@@ -96,6 +108,55 @@ export default function Home() {
             Generate Graphs
           </Button>
           <NewTrackModal addNewTrack={addNewTrack} />
+        </YStack>
+
+        <YStack
+          flex={1}
+          maxHeight={100}
+        >
+          <Text
+            fontSize={20}
+            fontWeight="bold"
+            alignSelf="center"
+          >
+            How are you feeling today?
+          </Text>
+          <XStack
+            flex={1}
+            justifyContent="space-around"
+            marginTop={10}
+          >
+            <Button
+              size={6}
+              onPress={() => {
+                moodClick(1);
+              }}
+              backgroundColor={mood === 1 ? "$blue10" : "black"}
+              icon={
+                <Laugh
+                  size="$2"
+                  marginRight={6}
+                />
+              }
+            >
+              Happy
+            </Button>
+            <Button
+              size={6}
+              onPress={() => {
+                moodClick(0);
+              }}
+              backgroundColor={mood === 0 ? "$blue10" : "black"}
+              icon={
+                <Frown
+                  size="$2"
+                  marginRight={6}
+                />
+              }
+            >
+              Sad
+            </Button>
+          </XStack>
         </YStack>
 
         <FlashList
