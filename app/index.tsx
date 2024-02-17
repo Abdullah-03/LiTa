@@ -105,7 +105,7 @@ export default function Home() {
               label={item.title}
               value={item.value}
               onClick={onClick(index)}
-              deleteTrack={deleteTrack}
+              deleteTrack={() => deleteTrack(index)}
             />
           )}
           estimatedItemSize={100}
