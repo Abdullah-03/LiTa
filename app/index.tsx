@@ -1,23 +1,19 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
-import { Github, Twitter } from "@tamagui/lucide-icons";
 import { Link, useRouter } from "expo-router";
-import {
-  Button,
-  H1,
-  ListItem,
-  Paragraph,
-  Separator,
-  YGroup,
-  YStack
-} from "tamagui";
+import { Button, H1, Paragraph, YStack } from "tamagui";
 
 import { MySafeAreaView } from "../components/MySafeAreaView";
 import { MyStack } from "../components/MyStack";
 import NewTrackModal from "../components/NewTrackModal";
 import Track from "../components/track";
 import { getJSONData, storeJSONData } from "../utils/asyncStorage";
+
+interface resultInterface {
+  title: string;
+  value: number;
+}
+[];
 
 const today = new Date();
 const year = today.getFullYear();
@@ -27,6 +23,16 @@ const date = day + "-" + mon + "-" + year;
 
 export default function Home() {
   console.log("rerender");
+
+  function addNewTrack(name: string) {
+    const deepCopyData = JSON.parse(JSON.stringify(data));
+    deepCopyData.push({ title: name, value: 0 });
+    setData(deepCopyData);
+    storeJSONData(
+      date,
+      data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
+    ).then(() => console.log("stored data", deepCopyData));
+  }
 
   const [data, setData] = useState([
     {
@@ -39,6 +45,16 @@ export default function Home() {
     }
   ]);
 
+  function deleteTrack(index: number) {
+    const deepCopyData = JSON.parse(JSON.stringify(data));
+    deepCopyData.splice(index, 1);
+    setData(deepCopyData);
+    storeJSONData(
+      date,
+      data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
+    ).then(() => console.log("stored data", deepCopyData));
+  }
+
   function onClick(index) {
     return (value: number) => {
       const deepCopyData = JSON.parse(JSON.stringify(data));
@@ -47,12 +63,12 @@ export default function Home() {
       storeJSONData(
         date,
         data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
-      ).then(console.log("stored data", deepCopyData));
+      ).then(() => console.log("stored data", deepCopyData));
     };
   }
 
   useEffect(() => {
-    getJSONData(date).then((result) => {
+    getJSONData(date).then((result: resultInterface) => {
       console.log("useEffect ran", result);
 
       setData(
@@ -67,7 +83,7 @@ export default function Home() {
     <MySafeAreaView>
       <MyStack>
         <YStack maxWidth={600}>
-          <H1 textAlign="center">Welcome to LiTaaa</H1>
+          <H1 textAlign="center">Welcome to LiTa</H1>
           <Paragraph textAlign="center">
             Here&apos;s a basic starter to show navigating from one screen to
             another.
@@ -78,7 +94,7 @@ export default function Home() {
           <Button onPress={() => router.push("/graphs")}>
             Go to graphs page
           </Button>
-          <NewTrackModal />
+          <NewTrackModal addNewTrack={addNewTrack} />
         </YStack>
 
         <FlashList
@@ -88,6 +104,7 @@ export default function Home() {
               label={item.title}
               value={item.value}
               onClick={onClick(index)}
+              deleteTrack={deleteTrack}
             />
           )}
           estimatedItemSize={100}

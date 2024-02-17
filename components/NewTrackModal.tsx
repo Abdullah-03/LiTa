@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { X } from "@tamagui/lucide-icons";
 import {
   Adapt,
@@ -11,9 +12,13 @@ import {
   YStack
 } from "tamagui";
 
-import SelectDemo from "./SelectDemo";
+interface newTrackModalProps {
+  addNewTrack: any;
+}
 
-export default function NewTrackModal() {
+export default function NewTrackModal({ addNewTrack }: newTrackModalProps) {
+  const [value, setValue] = useState("");
+
   return (
     <Dialog modal>
       <Dialog.Trigger asChild>
@@ -64,19 +69,18 @@ export default function NewTrackModal() {
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           space
         >
-          <Dialog.Title>Edit profile</Dialog.Title>
+          <Dialog.Title>Add New Track</Dialog.Title>
           <Dialog.Description>
-            Make changes to your profile here. Click save when you&apos;re done.
+            Type out what you want to track. Click save when you&apos;re done.
           </Dialog.Description>
           <Fieldset>
             <Label htmlFor="name">Name</Label>
             <Input
-              id="name"
-              defaultValue="Nate Wienert"
+              placeholder="Track name"
+              value={value}
+              onChangeText={setValue}
             />
           </Fieldset>
-
-          <SelectDemo />
 
           <YStack
             alignItems="flex-end"
@@ -89,6 +93,10 @@ export default function NewTrackModal() {
               <Button
                 theme="green_Button"
                 aria-label="Close"
+                onPress={() => {
+                  addNewTrack(value);
+                  setValue("");
+                }}
               >
                 Save changes
               </Button>
