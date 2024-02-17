@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { Github, Twitter } from "@tamagui/lucide-icons";
-import { log } from "console";
 import { Link, useRouter } from "expo-router";
 import {
   Button,
@@ -16,6 +15,7 @@ import {
 
 import { MySafeAreaView } from "../components/MySafeAreaView";
 import { MyStack } from "../components/MyStack";
+import NewTrackModal from "../components/NewTrackModal";
 import Track from "../components/track";
 import { getJSONData, storeJSONData } from "../utils/asyncStorage";
 
@@ -26,6 +26,8 @@ const day = today.getDate();
 const date = day + "-" + mon + "-" + year;
 
 export default function Home() {
+  console.log("rerender");
+
   const [data, setData] = useState([
     {
       title: "First Item!!!",
@@ -41,22 +43,21 @@ export default function Home() {
     return (value: number) => {
       const deepCopyData = JSON.parse(JSON.stringify(data));
       deepCopyData[index].value = value;
-      console.log(data);
-      console.log(deepCopyData);
       setData(deepCopyData);
+      storeJSONData(
+        date,
+        data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
+      ).then(console.log("stored data", deepCopyData));
     };
   }
 
   useEffect(() => {
-    storeJSONData(
-      date,
-      data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
-    ).then(() => {
-      getJSONData(date).then((result) => {
-        setData(
-          Object.entries(result).map(([title, value]) => ({ title, value }))
-        );
-      });
+    getJSONData(date).then((result) => {
+      console.log("useEffect ran", result);
+
+      setData(
+        Object.entries(result).map(([title, value]) => ({ title, value }))
+      );
     });
   }, []);
 
@@ -66,7 +67,7 @@ export default function Home() {
     <MySafeAreaView>
       <MyStack>
         <YStack maxWidth={600}>
-          <H1 textAlign="center">Welcome to Tamagui.</H1>
+          <H1 textAlign="center">Welcome to LiTaaa</H1>
           <Paragraph textAlign="center">
             Here&apos;s a basic starter to show navigating from one screen to
             another.
@@ -74,62 +75,12 @@ export default function Home() {
         </YStack>
 
         <YStack space="$2.5">
-          <Button onPress={() => router.push("/users/testuser")}>
-            Go to user page
+          <Button onPress={() => router.push("/graphs")}>
+            Go to graphs page
           </Button>
-          <Button onPress={() => router.push("/tabs")}>Go to tabs page</Button>
+          <NewTrackModal />
         </YStack>
 
-        <YStack space="$5">
-          <YGroup
-            bordered
-            separator={<Separator />}
-            theme="green"
-          >
-            <YGroup.Item>
-              <Link
-                asChild
-                href="https://twitter.com/natebirdman"
-                target="_blank"
-              >
-                <ListItem
-                  hoverTheme
-                  title="Nate"
-                  pressTheme
-                  icon={Twitter}
-                />
-              </Link>
-            </YGroup.Item>
-            <YGroup.Item>
-              <Link
-                asChild
-                href="https://github.com/tamagui/tamagui"
-                target="_blank"
-              >
-                <ListItem
-                  hoverTheme
-                  pressTheme
-                  title="Tamagui"
-                  icon={Github}
-                />
-              </Link>
-            </YGroup.Item>
-            <YGroup.Item>
-              <Link
-                asChild
-                href="https://github.com/ivopr/tamagui-expo"
-                target="_blank"
-              >
-                <ListItem
-                  hoverTheme
-                  pressTheme
-                  title="This Template"
-                  icon={Github}
-                />
-              </Link>
-            </YGroup.Item>
-          </YGroup>
-        </YStack>
         <FlashList
           data={data}
           renderItem={({ item, index }) => (

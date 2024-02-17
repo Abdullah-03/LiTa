@@ -20,10 +20,11 @@ function Track({ label, value, onClick }: trackProps) {
         {label}
       </Paragraph>
       <Input
-        placeholder={String(value)}
+        value={String(value)}
         textAlign="center"
         inputMode="numeric"
         onChangeText={onClick}
+        width={60}
       />
     </XStack>
   );

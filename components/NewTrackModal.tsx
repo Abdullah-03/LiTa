@@ -13,11 +13,11 @@ import {
 
 import SelectDemo from "./SelectDemo";
 
-export default function DialogDemo() {
+export default function NewTrackModal() {
   return (
     <Dialog modal>
       <Dialog.Trigger asChild>
-        <Button>Edit Profile</Button>
+        <Button>Track new element</Button>
       </Dialog.Trigger>
 
       <Adapt
