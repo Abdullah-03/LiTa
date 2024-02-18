@@ -1,9 +1,9 @@
 //@ts-nocheck
 import { useEffect, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
-import { Check, Frown, Laugh } from "@tamagui/lucide-icons";
-import { Link, useRouter } from "expo-router";
-import { Button, H1, Paragraph, Text, View, XStack, YStack } from "tamagui";
+import { Frown, Laugh } from "@tamagui/lucide-icons";
+import { useRouter } from "expo-router";
+import { Button, H1, Paragraph, Text, XStack, YStack } from "tamagui";
 
 import { MySafeAreaView } from "../components/MySafeAreaView";
 import { MyStack } from "../components/MyStack";
@@ -11,6 +11,7 @@ import NewTrackModal from "../components/NewTrackModal";
 import Track from "../components/track";
 import {
   getJSONData,
+  getStringData,
   storeJSONData,
   storeStringData
 } from "../utils/asyncStorage";
@@ -38,7 +39,10 @@ export default function Home() {
     setData(deepCopyData);
     storeJSONData(
       date,
-      data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
+      deepCopyData.reduce(
+        (obj, item) => ((obj[item.title] = item.value), obj),
+        {}
+      )
     ).then(() => console.log("stored data", deepCopyData));
   }
 
@@ -87,6 +91,10 @@ export default function Home() {
       setData(
         Object.entries(result).map(([title, value]) => ({ title, value }))
       );
+    });
+    getStringData(date + " mood").then((result) => {
+      result === null ? setMood(-1) : setMood(Number(result));
+      console.log("use effect ran", result);
     });
   }, []);
 
