@@ -1,46 +1,13 @@
-# Tamagui Expo Template
-###### This is a community template
+# Open Source Mobile Offline First Life Tracking App
 
-> [!NOTE]
-> This has now been archived. Meaning I won't be pushing updates to it anymore. We now have a much wider range of templates, and [tamagui.dev](tamagui.dev) explains neatly how to start on Expo only.
+For the unintiated life tracking is the process of monitoring and cataloguing all diffferent aspects of your life. Everything from the usual exercise related metrics most people tend to track (steps, calories etc) to the more mundane tasks such as number of pages read, and hours spent coding.
 
-<p align="center">
-  <img src="./assets/icon.png" alt="Tamagui Icon"/>
-</p>
+# What's the point?
 
-<div align="center">
-  <a target="_blank" href="https://expo.dev/%40ivopr/tamagui-app?serviceType=eas&distribution=expo-go&scheme=&channel=main&sdkVersion=49.0.0">
-      <img src="https://img.shields.io/badge/Open%20in%20Expo%20Go-4630EB.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000" alt="Open in Expo Go"/>
-    </a>
-</div>
+The goal of all this data is to track user's mood/happiness index in tandem as well. This data will allow the app to use machine learning and data science to find and highlight trends in one's habits and their percieved habits/activities. Maybe you'll learn that on days that you read more you inexplicable feel much happier than when you don't. This might feel like an obvious enough takeaway but with enough data this app will show you trends that you might not have ever paid attention to or would have thought were apparent. For example you might find that when you spend time coding hobby projects you feel better but you feel even better when you code, avoid sugary drinks and exercise all together!
 
-## Quick Start
-Just run the following, changing `yourappname` to the name of your project.
-```
-npx create-expo-app yourappname -t tamagui-expo-template --no-install
-cd yourappname
-yarn install
-```
-If you have [Expo Go](https://expo.dev/client) app installed, just start your new app with `yarn start`, if not, create your own [Development Client](https://docs.expo.dev/development/build/)
+# What's Special With This Implementation?
 
-## What you get
-This is a starter template for [Expo](https://expo.dev) using [Tamagui](https://tamagui.dev).
-In this template you get out of the box:
-- Semantic Release already configured with everything you might want
-- Expo Router up and running
-- Tamagui, a nice and modern way of building your UIs
-- ESLint and Prettier configurations
+PRIVACY! I've found a lack of any such apps (atleast on android) and for the select few that do exist always have some online based features. That luxury comes with the understandable fear of privacy. You can never be sure whether the developer is harvesiting sensitive personal data such as health data.
 
-## What you don't get
-- Expo Web support (for this, go to the [Official Tamagui Starter](https://github.com/tamagui/tamagui))
-- i18n
-- Global State management
-
-## If you want to...
-1. You can build your own dev client with `eas build -p android --profile development`
-1. Develop in WSL, use the `yarn wsl` command, else `yarn start` is your default choice.
-
-## Troubleshooting
-### I'm on WSL but my app doesn't connect
-WSL2 runs inside its own container, so it doesn't share the same IPv4 and port status as your host machine, you might need [this](https://gist.github.com/ivopr/64f974e632b7edcbe1f5e58b91e31598)
-
+That's why LiTa is an offline-first open source application. If you ever feel that the proposition of being completly offline isn't really true you're more than welcome to come take a look at the application code directly.
