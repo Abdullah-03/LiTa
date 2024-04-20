@@ -31,9 +31,15 @@ export default function Home() {
   console.log("rerender");
 
   function addNewTrack(name: string) {
-    // const deepCopyData = JSON.parse(JSON.stringify(data));
-    // deepCopyData.push({ title: name, value: 0 });
-    // setData(deepCopyData);
+    db.transactionAsync((tx) => {
+      tx.executeSqlAsync(`ALTER TABLE track ADD COLUMN ${name} TEXT;`)
+        .then(() => {
+          const deepCopyData = JSON.parse(JSON.stringify(data));
+          deepCopyData.push({ title: name, value: 0 });
+          setData(deepCopyData);
+        })
+        .catch((e) => console.log("Add new track failed", e));
+    });
     // storeJSONData(
     //   date,
     //   deepCopyData.reduce(
@@ -100,17 +106,20 @@ export default function Home() {
       let result;
       await db.transactionAsync(async (tx) => {
         result = await tx
-          .executeSqlAsync("SELECT * FROM track WHERE date = DATE('now');")
+          .executeSqlAsync("SELECT * FROM track WHERE date = CURRENT_DATE;")
           .then((res) => res.rows)
-          .catch(() => console.log("query failed"));
+          .catch((e) => console.log("query failed", e));
       });
 
       if (Object.keys(result).length === 0) {
         //no data for today
         await db.transactionAsync(async (tx) => {
           result = await tx
-            .executeSqlAsync("SELECT * FROM track LIMIT 1")
-            .then((res) => res.rows)
+            .executeSqlAsync("PRAGMA table_info(track);")
+            .then((res) => {
+              console.log(res.rows);
+              return res.rows;
+            })
             .catch(() => console.log("query failed"));
         });
         if (Object.keys(result).length === 0) {
@@ -123,9 +132,12 @@ export default function Home() {
           ]);
         } else {
           // new day with no entries then populate view with users previous entries
-          ans = {};
-          for (const column in result) {
-            ans[column] = -1;
+          let ans = [];
+          for (const column of result) {
+            ans.push({
+              title: column.name,
+              value: -1
+            });
           }
           setData(ans);
         }
