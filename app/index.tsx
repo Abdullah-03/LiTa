@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { useEffect, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
-import { Frown, Laugh, Rss } from "@tamagui/lucide-icons";
+import { Frown, Laugh, Baby } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
 import { Button, H1, Paragraph, Text, XStack, YStack } from "tamagui";
 
@@ -25,13 +25,13 @@ interface resultInterface {
 // const date = day + "-" + mon + "-" + year;
 
 export default function Home() {
-  const [mood, setMood] = useState(-1);
+  const [mood, setMood] = useState(2);
   const [firstRun, setFirstRun] = useState(true);
 
   console.log("rerender");
 
   function addNewTrack(name: string) {
-    db.transactionAsync((tx) => {
+    db.transactionAsync(async (tx) => {
       tx.executeSqlAsync(`ALTER TABLE track ADD COLUMN ${name} TEXT;`)
         .then(() => {
           const deepCopyData = JSON.parse(JSON.stringify(data));
@@ -40,23 +40,12 @@ export default function Home() {
         })
         .catch((e) => console.log("Add new track failed", e));
     });
-    // storeJSONData(
-    //   date,
-    //   deepCopyData.reduce(
-    //     (obj, item) => ((obj[item.title] = item.value), obj),
-    //     {}
-    //   )
-    // ).then(() => console.log("stored data", deepCopyData));
     console.log("store track");
   }
 
   const [data, setData] = useState([
     {
       title: "First Item!!!",
-      value: 1
-    },
-    {
-      title: "Second Item",
       value: 1
     }
   ]);
@@ -73,37 +62,45 @@ export default function Home() {
     // ).then(() => console.log("stored data", deepCopyData));
   }
 
-  function onClick(index) {
-    // return (value: number) => {
-    //   const deepCopyData = JSON.parse(JSON.stringify(data));
-    //   deepCopyData[index].value = value;
-    //   setData(deepCopyData);
-    //   storeJSONData(
-    //     date,
-    //     data.reduce((obj, item) => ((obj[item.title] = item.value), obj), {})
-    //   ).then(() => console.log("stored data", deepCopyData));
-    // };
+  function onClick(index: number) {
+    return async (value: number) => {
+      const deepCopyData = JSON.parse(JSON.stringify(data));
+      deepCopyData[index].value = value;
+      setData(deepCopyData);
+      db.transactionAsync((tx) => {
+        tx.executeSqlAsync(
+          `INSERT INTO track(${data[index].title}) VALUES ${value}`
+        ).catch((e) => console.log(e));
+      });
+    };
   }
 
   function moodClick(m: number): void {
-    // mood === m ? setMood(-1) : setMood(m);
-    // storeStringData(date + " mood", String(m));
+    mood === m ? setMood(2) : setMood(m);
+    db.transactionAsync(async (tx) => {
+      await tx.executeSqlAsync("");
+    });
   }
 
   useEffect(() => {
     async function get_data() {
+      // app starts for first time, create track table
       if (firstRun) {
         await db.transactionAsync(async (tx) => {
           await tx
+            .executeSqlAsync("DROP TABLE track;")
+            .then(() => console.log("deleted"))
+            .catch((e) => console.log("delete failed", e));
+          await tx
             .executeSqlAsync(
-              "CREATE TABLE IF NOT EXISTS track (date TEXT DEFAULT CURRENT_DATE UNIQUE NOT NULL);"
+              "CREATE TABLE IF NOT EXISTS track (date TEXT DEFAULT CURRENT_DATE UNIQUE NOT NULL, mood INT);"
             )
             .catch(() => console.log("track table creation failed"));
         });
         setFirstRun(false);
       }
 
-      let result;
+      let result: ResultSet.rows;
       await db.transactionAsync(async (tx) => {
         result = await tx
           .executeSqlAsync("SELECT * FROM track WHERE date = CURRENT_DATE;")
@@ -111,27 +108,31 @@ export default function Home() {
           .catch((e) => console.log("query failed", e));
       });
 
-      if (Object.keys(result).length === 0) {
-        //no data for today
+      // no data for today
+      if (result.length === 0) {
         await db.transactionAsync(async (tx) => {
           result = await tx
             .executeSqlAsync("PRAGMA table_info(track);")
             .then((res) => {
-              console.log(res.rows);
               return res.rows;
             })
             .catch(() => console.log("query failed"));
         });
-        if (Object.keys(result).length === 0) {
-          //new user with no prior entries (show default entry)
+
+        //new user with no prior entries (show default entry) (intial table has 2 cols mood and date)
+        if (result.length === 2) {
           setData([
             {
               title: "Track First Thing",
               value: -1
             }
           ]);
-        } else {
-          // new day with no entries then populate view with users previous entries
+        }
+        // new day with no entries then populate view with users previous entries
+        else {
+          console.log("new day with no entries");
+          console.log(result);
+
           let ans = [];
           for (const column of result) {
             ans.push({
@@ -141,8 +142,9 @@ export default function Home() {
           }
           setData(ans);
         }
-      } else {
-        //there is tracked data today
+      }
+      //there is tracked data today
+      else {
         ans = {};
         for (const column in result) {
           ans[column] = -1;
@@ -152,18 +154,6 @@ export default function Home() {
     }
 
     get_data();
-
-    // getJSONData(date).then((result: resultInterface) => {
-    //   console.log("useEffect ran", result);
-
-    //   setData(
-    //     Object.entries(result).map(([title, value]) => ({ title, value }))
-    //   );
-    // });
-    // getStringData(date + " mood").then((result) => {
-    //   result === null ? setMood(-1) : setMood(Number(result));
-    //   console.log("use effect ran", result);
-    // });
   }, []);
 
   const router = useRouter();
@@ -201,34 +191,41 @@ export default function Home() {
             flex={1}
             justifyContent="space-around"
             marginTop={10}
+            backgroundColor={"purple"}
           >
             <Button
-              size={6}
+              //size={40}
+              width={"1/4"}
               onPress={() => {
-                moodClick(1);
+                moodClick(3);
               }}
-              backgroundColor={mood === 1 ? "$blue10" : "black"}
-              icon={
-                <Laugh
-                  size="$2"
-                  marginRight={6}
-                />
-              }
+              marginVertical={"auto"}
+              backgroundColor={mood === 3 ? "$blue10" : "black"}
+              icon={<Laugh size="$2" />}
             >
               Happy
             </Button>
             <Button
-              size={6}
+              //size={40}
+              width={"1/4"}
               onPress={() => {
-                moodClick(0);
+                moodClick(2);
               }}
-              backgroundColor={mood === 0 ? "$blue10" : "black"}
-              icon={
-                <Frown
-                  size="$2"
-                  marginRight={6}
-                />
-              }
+              marginVertical={"auto"}
+              backgroundColor={mood === 2 ? "$blue10" : "black"}
+              icon={<Baby size="$2" />}
+            >
+              Neutral
+            </Button>
+            <Button
+              //size={40}
+              width={"1/4"}
+              onPress={() => {
+                moodClick(1);
+              }}
+              marginVertical={"auto"}
+              backgroundColor={mood === 1 ? "$blue10" : "black"}
+              icon={<Frown size="$2" />}
             >
               Sad
             </Button>
